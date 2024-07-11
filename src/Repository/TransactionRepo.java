@@ -102,17 +102,16 @@ public class TransactionRepo implements FileGeneric<Transaction> {
                 .collect(Collectors.toSet());
 
         Map<Account, Double> accountListMap = new HashMap<>();
-        transactions.stream()
-                .filter(t->t.getDateTime().isAfter(LocalDateTime.now().minus(Period.ofDays(30))))
-                .filter(t->!accountSet.contains(t.getAccount()))
-                .forEach(t->{
-                    if(t.getAccount().getCurrency().equals(Currency.VND)){
-                       t.getAccount().setBalance(t.getAccount().getBalance() + (t.getAccount().getBalance() * 0.2/100));
-                    }else if(t.getAccount().getCurrency().equals(Currency.USD)){
-                        t.getAccount().setBalance(t.getAccount().getBalance() + (t.getAccount().getBalance() * 0/100));
-                    }
-                    accountListMap.put(t.getAccount(), t.getAccount().getBalance());
-                });
+            accounts.stream()
+                    .filter(a->!accountSet.contains(a))
+                    .forEach(a -> {
+                        if(a.getCurrency().equals(Currency.VND)){
+                            a.setBalance(a.getBalance() + (a.getBalance() * 0.2/100));
+                        }else if(a.getCurrency().equals(Currency.USD)){
+                            a.setBalance(a.getBalance() + (a.getBalance() * 0/100));
+                        }
+                        accountListMap.put(a, a.getBalance());
+                    });
 
         return accountListMap;
 

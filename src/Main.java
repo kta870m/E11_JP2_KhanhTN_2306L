@@ -73,6 +73,7 @@ public class Main {
                 choice = Integer.parseInt(br.readLine());
                 switch (choice){
                     case 1:
+
                         Transaction transaction = new Transaction();
                         System.out.print("Enter your name: ");
                         name = br.readLine();
@@ -200,13 +201,11 @@ public class Main {
                         transactions.forEach(System.out::println);
                         break;
                     case 6:
-                        Set<Account> accountSet = transactions
-                                .stream()
-                                .filter(t->t.getDateTime().isAfter(LocalDateTime.now().minus(Period.ofDays(30))))
-                                .filter(t->t.getType() == Type.WITHDRAWAL)
-                                .map(Transaction::getAccount)
-                                .collect(Collectors.toSet());
-                        System.out.println(accountSet);
+                        Iterator<Map.Entry<Account, Double>> entryIterator = tr.getTransaction30Days().entrySet().iterator();
+                        while (entryIterator.hasNext()){
+                            Map.Entry<Account, Double> entry = entryIterator.next();
+                            System.out.println("Account " + entry.getKey() + ": " + entry.getValue());
+                        }
                         break;
                 }
             }while (!flag);
