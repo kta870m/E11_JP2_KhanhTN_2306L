@@ -58,7 +58,6 @@ public class Main {
         Account acc;
         String option;
         double amount;
-        Transaction transaction = new Transaction();
         Iterator<Map.Entry<String,Double>> it;
 
         try{
@@ -74,6 +73,7 @@ public class Main {
                 choice = Integer.parseInt(br.readLine());
                 switch (choice){
                     case 1:
+                        Transaction transaction = new Transaction();
                         System.out.print("Enter your name: ");
                         name = br.readLine();
                         it = ac.getAccountByName(name).entrySet().iterator();
@@ -81,7 +81,6 @@ public class Main {
                             Map.Entry<String, Double> entry = it.next();
                             System.out.println("Account " + entry.getKey() + ": " + entry.getValue());
                         }
-
                         System.out.print("Enter Account Id: ");
                         accId = br.readLine();
                         transaction.setStatus(Status.C);
@@ -115,6 +114,7 @@ public class Main {
                         System.out.println("Account" + acc.getId() + ": " + acc.getBalance());
                         break;
                     case 2:
+                        Transaction transaction2 = new Transaction();
                         System.out.print("Enter your name: ");
                         name = br.readLine();
                         it = ac.getAccountByName(name).entrySet().iterator();
@@ -128,15 +128,15 @@ public class Main {
 
                         if(tr.getAccountById(accId) == null){
                             System.out.println("Cannot find an Account");
-                            transaction.setStatus(Status.P);
+                            transaction2.setStatus(Status.P);
                         }
                         acc = tr.getAccountById(accId);
 
                         System.out.print("Enter Amount: ");
                         amount = Double.parseDouble(br.readLine());
-                        transaction.setAmount(amount);
+                        transaction2.setAmount(amount);
 
-                        DepositThread dt = new DepositThread(acc, transaction);
+                        DepositThread dt = new DepositThread(acc, transaction2);
 
                         Thread t2 = new Thread(dt);
                         try{
@@ -146,11 +146,11 @@ public class Main {
                             System.out.println(e.getMessage());
                         }
 
-                        transaction.setId(transactions.size() + 1);
-                        transaction.setAccount(acc);
-                        transaction.setType(Type.DEPOSIT);
-                        transaction.setDateTime(LocalDateTime.now());
-                        transactions.add(transaction);
+                        transaction2.setId(transactions.size() + 1);
+                        transaction2.setAccount(acc);
+                        transaction2.setType(Type.DEPOSIT);
+                        transaction2.setDateTime(LocalDateTime.now());
+                        transactions.add(transaction2);
 
                         System.out.println("Account " + acc.getId() + ": " + acc.getBalance());
                         break;
@@ -196,9 +196,17 @@ public class Main {
                                 break;
                         }
                         break;
+                    case 5:
+                        transactions.forEach(System.out::println);
+                        break;
                     case 6:
-                        tr.getTransaction30Days();
-                        accounts.forEach(System.out::println);
+                        Set<Account> accountSet = transactions
+                                .stream()
+                                .filter(t->t.getDateTime().isAfter(LocalDateTime.now().minus(Period.ofDays(30))))
+                                .filter(t->t.getType() == Type.WITHDRAWAL)
+                                .map(Transaction::getAccount)
+                                .collect(Collectors.toSet());
+                        System.out.println(accountSet);
                         break;
                 }
             }while (!flag);
