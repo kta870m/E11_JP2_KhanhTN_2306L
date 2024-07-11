@@ -178,11 +178,10 @@ public class Main {
                         LocalDateTime start = Date.parseDateTime(br.readLine());
                         System.out.print("Enter End Date: ");
                         LocalDateTime end = Date.parseDateTime(br.readLine());
-                        System.out.println(tr.getTransactionByDate(id, start, end));
-                        Iterator<Map.Entry<Account, List<Transaction>>> accountIt = tr.getTransactionByDate(id, start, end).entrySet().iterator();
+                        Iterator<Map.Entry<LocalDateTime, List<Transaction>>> accountIt = tr.getTransactionByDate(id, start, end).entrySet().iterator();
                         while (accountIt.hasNext()){
-                            Map.Entry<Account, List<Transaction>> entry = accountIt.next();
-                            System.out.println("Account " + entry.getKey().getId() + ": " + entry.getValue());
+                            Map.Entry<LocalDateTime, List<Transaction>> entry = accountIt.next();
+                            System.out.println(entry.getKey() + ": " + entry.getValue());
                         }
                         System.out.println("Do you want to save this transaction(Y or N): ");
                         option = br.readLine();
@@ -204,7 +203,7 @@ public class Main {
                         Iterator<Map.Entry<Account, Double>> entryIterator = tr.getTransaction30Days().entrySet().iterator();
                         while (entryIterator.hasNext()){
                             Map.Entry<Account, Double> entry = entryIterator.next();
-                            System.out.println("Account " + entry.getKey() + ": " + entry.getValue());
+                            System.out.println("Account " + entry.getKey().getId() + ": " + entry.getValue());
                         }
                         break;
                 }

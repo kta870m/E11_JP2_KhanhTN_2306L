@@ -51,20 +51,21 @@ public class TransactionRepo implements FileGeneric<Transaction> {
         return transactions;
     }
 
-    public Map<Account, List<Transaction>> getTransactionByDate(String id, LocalDateTime start, LocalDateTime end){
+    public Map<LocalDateTime, List<Transaction>> getTransactionByDate(String id, LocalDateTime start, LocalDateTime end){
         Set<Account> accountSet = transactions.stream()
                 .filter(t->t.getAccount().getId().equals(id))
                 .map(Transaction::getAccount)
                 .collect(Collectors.toSet());
 
-        Map<Account, List<Transaction>> accountListMap = transactions.stream()
+        Map<LocalDateTime, List<Transaction>> accountListMap = transactions.stream()
                 .filter(t->accountSet.contains(t.getAccount()))
                 .filter(t->(t.getDateTime().isAfter(start) || t.getDateTime().equals(start))
                         && (t.getDateTime().isBefore(end) || t.getDateTime().equals(end)))
                 .collect(Collectors.groupingBy(
-                        Transaction::getAccount,
+                        Transaction::getDateTime,
                         Collectors.toList()
                 ));
+
         return accountListMap;
     }
 
@@ -73,25 +74,24 @@ public class TransactionRepo implements FileGeneric<Transaction> {
         return List.of();
     }
 
-    public Map<Account, List<Transaction>> saveData(String filePath, Map<Account, List<Transaction>> accountListMap){
+    public Map<LocalDateTime, List<Transaction>> saveData(String filePath, Map<LocalDateTime, List<Transaction>> accountListMap){
         try{
             FileWriter fw = new FileWriter(filePath);
             BufferedWriter bw = new BufferedWriter(fw);
-            Iterator<Map.Entry<Account, List<Transaction>>> it = accountListMap.entrySet().iterator();
+            Iterator<Map.Entry<LocalDateTime, List<Transaction>>> it = accountListMap.entrySet().iterator();
             while (it.hasNext()){
-                Map.Entry<Account, List<Transaction>> entry = it.next();
-                String objString = "Account " + entry.getKey().getId() + ": " + entry.getValue();
+                Map.Entry<LocalDateTime, List<Transaction>> entry = it.next();
+                String objString = entry.getKey() + ": " + entry.getValue();
                 bw.append(objString);
                 bw.newLine();
-                bw.close();
+                bw.flush();
             }
         }catch (IOException e){
             System.out.println(e.getMessage());
         }
 
-        return  accountListMap;
+        return accountListMap;
     }
-
 
     public Map<Account, Double> getTransaction30Days(){
         Set<Account> accountSet = transactions
